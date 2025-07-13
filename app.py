@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, jsonify 
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 #flask lets you create the app
 #render_template loads html files like index.html
 #request lets you access the data sent from the browser
@@ -10,7 +14,7 @@ import os
 app = Flask(__name__) # Create a Flask application instance , also tells flask this is the main file
 
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn" #API endpoint for summarization model 
-Headers = {"Authorization": f"Bearer {os.getenv('HUGGINGFACE_TOKEN')}"} # adds your API token to the request header (basicly saying Hey Hugging Face, Here's my API key)
+HEADERS = {"Authorization": f"Bearer {os.getenv('HUGGINGFACE_TOKEN')}"} # adds your API token to the request header (basicly saying Hey Hugging Face, Here's my API key)
 
 @app.route("/") #when someone visits the root URL, this function will run
 def home():
