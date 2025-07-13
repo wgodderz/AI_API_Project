@@ -1,0 +1,28 @@
+<!DOCTYPE html> <!-- html file-->
+<html> <!-- html begins-->
+<head> <!-- head holds metadata (data about data) does not show on page -->
+    <title>AI Study Buddy</title> <!-- title of the page and tab name -->
+    <link rel="stylesheet" href="/static/style.css"> <!-- connects to style file-->
+</head>
+<body> <!-- starts visible page content-->
+    <h1>AI Study Buddy</h1> <!-- main heading of page -->
+    <form id="text-form"> <!-- form for user input -->
+        <textarea name="text" rows="10" cols="80" placeholder="Paste your notes here..."></textarea><br> <!-- text area for user to input notes (creates text box)-->
+        <button type="submit">Summarize</button> <!-- button to submit the form -->
+    </form> <!-- end of form -->
+    <div id="output"></div> <!-- empty box where error or summary will be-->
+
+    <script> //start ther JavaScript code
+        document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
+            e.preventDefault(); //stops form from doing defult action of reloadig the page
+            const notes = new FormData(this); //creats a formdata object from the form (this is the notes)
+            const response = await fetch("/summarize", { //sends the form data to the flask backend
+                method: "POST", // uses POST = send
+                body: notes //the body is the form data aka the notes that the user inputted
+            });
+            const result = await response.json(); //converts the response from JSON format to regular JavaScript object
+            document.getElementById("output").innerText = result.summary || result.error; //displays the summary or error in the output div line 13
+        });
+    </script>
+</body>
+</html>
