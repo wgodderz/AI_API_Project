@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import os
 from dotenv import load_dotenv
+import base64
+import time
+
 
 load_dotenv()
 
@@ -12,7 +15,8 @@ load_dotenv()
 #requests allows pythons to send HTTP requests 
 
 app = Flask(__name__) # Create a Flask application instance , also tells flask this is the main file
-
+spotify_token = None #access token for Spotify API
+spotify_token_expiry = 0 #timestamp for when the Spotify token expires
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn" #API endpoint for summarization model 
 HEADERS = {"Authorization": f"Bearer {os.getenv('HUGGINGFACE_TOKEN')}"} # adds your API token to the request header (basicly saying Hey Hugging Face, Here's my API key)
 
@@ -23,7 +27,10 @@ def home():
 @app.route("/summarize", methods=["POST"]) #this route runs when the brower sends a POST request to /summarize (user hits submit)
 def summarize():
     input_text = request.form["text"] #gets the text that the user entered in the form on the website 
-
+    word_count = len(input_text.split())
+    if word_count < 300:
+        return jsonify({"error": "Text must be at least 300 words for summarization."})
+    
     payload = { # data that is sent to hugging face API
         "inputs": input_text,
         "options": {"wait_for_model": True} # makes sure the model is not asleep (aka lets it load)
@@ -36,6 +43,56 @@ def summarize():
         return jsonify({"summary": summary}) #returns the summary as a JSON response to the browser
     except Exception as e: #catches any errors
         return jsonify({"error": str(e)}) #return error to the browser as JSON
+
+def get_spotify_token(): # Function to fetch Spotify API access token
+    global spotify_token, spotify_token_expiry #lets function modify global variables
+
+    if spotify_token and time.time() < spotify_token_expiry: # If token is still valid, return it
+        return spotify_token
+
+    client_id = os.getenv("SPOTIFY_CLIENT_ID") #gets client id from .env
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET") #gets client secret from .env
+    auth_header = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode() #base64 is an encoder) combines client id and secret and encodes it has to do this for spotify
+
+    response = requests.post( #sends a POSt to spotify
+        "https://accounts.spotify.com/api/token",
+        data={"grant_type": "client_credentials"},
+        headers={
+            "Authorization": f"Basic {auth_header}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    )
+
+    data = response.json() #parses the response
+    spotify_token = data["access_token"] #store the token so we can reuse it
+    spotify_token_expiry = time.time() + data["expires_in"] - 60 #calculates when token will expire (subtracts 60 seconds to be safe)
+    return spotify_token #returns the token
+
+@app.route("/get_song", methods=["POST"]) #defines rounte for get song
+def get_song():
+    user_input = request.form["vibe"] #gets the user input from the form on the website
+    token = get_spotify_token() #gets a athorization token from Spotify
+
+    headers = {"Authorization": f"Bearer {token}"} #adds the token to the header
+    params = {"q": user_input, "type": "track", "limit": 1} #runs a query to search for a song based on user input only returns one
+
+    r = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params) #sends a get request to Spotify API to search for a song
+    data = r.json() #parses the response from Spotify API
+
+    try:
+        track = data["tracks"]["items"][0] #gets the first track from the response
+        track_url = track["external_urls"]["spotify"] #gets url to the song
+        track_name = track["name"] #gets the name of the song
+        artist = track["artists"][0]["name"] #gets the name of the artist
+
+        return jsonify({ #sends info back to the index.html file as json
+            "url": track_url,
+            "name": track_name,
+            "artist": artist
+        })
+    except Exception as e: #catches any errors that occur if no song is found
+        print("Error:", e)
+        return jsonify({"error": "No results found."})
 
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 

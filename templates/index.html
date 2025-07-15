@@ -11,18 +11,44 @@
         <button type="submit">Summarize</button> <!-- button to submit the form -->
     </form> <!-- end of form -->
     <div id="output"></div> <!-- empty box where error or summary will be-->
-
+    <h2>🎧 Vibe-Based Song Finder</h2>
+    <form id="vibe-form" method="post">
+        <input type="text" name="vibe" placeholder="Enter a vibe (e.g. gym, chill, drake)" />
+        <button type="submit">Find Song</button>
+    </form>
+    <div id="playlist-result"></div>
     <script> //start ther JavaScript code
-        document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
-            e.preventDefault(); //stops form from doing defult action of reloadig the page
-            const notes = new FormData(this); //creats a formdata object from the form (this is the notes)
-            const response = await fetch("/summarize", { //sends the form data to the flask backend
-                method: "POST", // uses POST = send
-                body: notes //the body is the form data aka the notes that the user inputted
-            });
-            const result = await response.json(); //converts the response from JSON format to regular JavaScript object
-            document.getElementById("output").innerText = result.summary || result.error; //displays the summary or error in the output div line 13
+    document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
+        e.preventDefault(); //stops form from doing defult action of reloadig the page
+        const notes = new FormData(this); //creats a formdata object from the form (this is the notes)
+        const response = await fetch("/summarize", { //sends the form data to the flask backend
+            method: "POST", // uses POST = send
+            body: notes //the body is the form data aka the notes that the user inputted
         });
-    </script>
+        const result = await response.json(); //converts the response from JSON format to regular JavaScript object
+        document.getElementById("output").innerText = result.summary || result.error; //displays the summary or error in the output div line 13
+    });
+
+    document.getElementById("vibe-form").addEventListener("submit", async function(e) { //listens for the vibe form submission
+        e.preventDefault(); //stops form from doing default action of reloading the page
+        const formData = new FormData(this); //create a formdata object from the vibe form
+        const res = await fetch("/get_song", { //send form data to flask backend
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json(); //convert the response from JSON format
+        const container = document.getElementById("playlist-result"); //get the div where we'll display result
+
+        if (data.url) { //check if the response contains a URL
+            const trackId = data.url.split("/track/").pop().split("?")[0]; //get the track ID from the URL
+            container.innerHTML = `
+                <p>🎵 ${data.name} by ${data.artist}</p> 
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+            `;
+        } else {
+            container.textContent = data.error; //show error if no song found
+        }
+    });
+</script>
 </body>
 </html>

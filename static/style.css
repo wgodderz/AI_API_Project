@@ -1,16 +1,18 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
+    font-family: 'Times New Roman', Times, serif, sans-serif;
+    margin: 45px;
     background-color: #f4f4f4;
 }
 h1 {
-    color: #333;
+    color: blue;
 }
 textarea {
     width: 100%;
     font-size: 16px;
 }
 button {
+    background-color: #4CAF50; /* Green */
+    color: white;
     margin-top: 10px;
     padding: 10px 20px;
     font-size: 16px;
