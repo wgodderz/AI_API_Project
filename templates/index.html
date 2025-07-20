@@ -50,6 +50,15 @@
     <ul id="workoutResultsList" style="margin-top: 20px;"></ul>
     </section>
 
+    <section>
+    <h2>🍎 Calorie & Nutrition Info</h2>
+    <form id="calorie-form">
+        <input type="text" id="food-input" placeholder="e.g. chicken breast" required />
+        <button type="submit">Get Nutrition Info</button>
+    </form>
+
+    <div id="calorie-result"></div>
+    </section>
 
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
@@ -206,6 +215,39 @@ function getWorkout() {
         list.innerHTML = "<li>Something went wrong while fetching your workout.</li>";
     });
 }
+
+document.getElementById("calorie-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const food = document.getElementById("food-input").value.trim();
+    const resultDiv = document.getElementById("calorie-result");
+    resultDiv.innerHTML = "Loading...";
+
+    try {
+      const response = await fetch("/get_calories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ food })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        resultDiv.innerHTML = `<p>⚠️ ${data.error}</p>`;
+      } else {
+        resultDiv.innerHTML = `
+          <h3>${data.name}</h3>
+          <ul>
+            <li><strong>Calories:</strong> ${data.calories}</li>
+            <li><strong>Protein:</strong> ${data.protein} g</li>
+            <li><strong>Carbs:</strong> ${data.carbohydrates} g</li>
+            <li><strong>Fat:</strong> ${data.fat} g</li>
+          </ul>
+        `;
+      }
+    } catch (err) {
+      resultDiv.innerHTML = `<p>❌ Something went wrong. Try again later.</p>`;
+    }
+  });
 
 </script>
 </body>

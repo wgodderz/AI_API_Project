@@ -228,7 +228,40 @@ def get_workout():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/get_calories", methods=["POST"])
+def get_calories():
+    data = request.get_json()
+    food_item = data.get("food", "").strip().lower()
+    if not food_item:
+        return jsonify({"error": "Please enter a food item."}), 400
 
-   
+    USDA_API_KEY = os.getenv("USDA_API_KEY")
+    search_url = f"https://api.nal.usda.gov/fdc/v1/foods/search"
+    params = {
+        "api_key": USDA_API_KEY,
+        "query": food_item,
+        "pageSize": 1
+    }
+
+    try:
+        search_response = requests.get(search_url, params=params)
+        search_response.raise_for_status()
+        search_data = search_response.json()
+
+        if not search_data["foods"]:
+            return jsonify({"error": "No data found for that food."})
+
+        food = search_data["foods"][0]
+        return jsonify({
+            "name": food.get("description", "Unknown"),
+            "calories": food.get("foodNutrients", [{}])[3].get("value", "N/A"),  # Approx index
+            "protein": food.get("foodNutrients", [{}])[0].get("value", "N/A"),
+            "carbohydrates": food.get("foodNutrients", [{}])[1].get("value", "N/A"),
+            "fat": food.get("foodNutrients", [{}])[2].get("value", "N/A")
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 
