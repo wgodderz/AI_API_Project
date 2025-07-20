@@ -27,3 +27,9 @@ Lib and Scripts: part of the Python virtual environment
 
 - IPv4: 192.168.4.253
 - on phone put: http://192.168.4.253:5000
+
+run in the cmd
+- cd "C:\Users\wgodd\OneDrive\Documents\ai-study-buddy"
+- venv\Scripts\activate
+- py app.py
+

@@ -33,6 +33,15 @@
     <audio id="tts-audio" controls style="margin-top: 10px;"></audio>
     </section>
 
+    <section>
+    <h2>📍 Explore Places in Any City</h2>
+    <div class="places-section">
+    <input type="text" id="cityInput" placeholder="Enter city (e.g., Chicago)">
+    <input type="text" id="cityKeywordInput" placeholder="Enter keyword (e.g., pizza)">
+    <button onclick="getPlacesByCity()">Find Places by City</button>
+    <ul id="cityResultsList"></ul>
+    </div>
+    </section>
 
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
@@ -125,6 +134,38 @@
     })
     .catch(() => {
         alert("Something went wrong while processing the speech request.");
+    });
+}
+
+function getPlacesByCity() {
+    const city = document.getElementById("cityInput").value;
+    const keyword = document.getElementById("cityKeywordInput").value;
+
+    fetch("/get_places_by_city", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city, keyword })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const list = document.getElementById("cityResultsList");
+        list.innerHTML = "";
+
+        if (data.error) {
+            list.innerHTML = `<li>${data.error}</li>`;
+            return;
+        }
+
+        if (data.length === 0) {
+            list.innerHTML = "<li>No places found.</li>";
+            return;
+        }
+
+        data.forEach(place => {
+            const item = document.createElement("li");
+            item.textContent = `${place.name} - ${place.address || "Address not available"} (Rating: ${place.rating || "N/A"})`;
+            list.appendChild(item);
+        });
     });
 }
 

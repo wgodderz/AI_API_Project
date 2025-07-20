@@ -160,6 +160,50 @@ def generate_audio(text: str) -> str:
 
     return base64.b64encode(response.audio_content).decode("utf-8")
 
+@app.route("/get_places_by_city", methods=["POST"])
+def get_places_by_city():
+    data = request.get_json()
+    city = data.get("city")
+    keyword = data.get("keyword")
+
+    GEOCODE_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY")  # Same key for both APIs
+
+    # Step 1: Convert city name to coordinates
+    geo_url = "https://maps.googleapis.com/maps/api/geocode/json"
+    geo_params = {"address": city, "key": GEOCODE_API_KEY}
+    geo_res = requests.get(geo_url, params=geo_params)
+    geo_data = geo_res.json()
+
+    if geo_data["status"] != "OK":
+        return jsonify({"error": "City not found."}), 400
+
+    location = geo_data["results"][0]["geometry"]["location"]
+    lat_lng = f"{location['lat']},{location['lng']}"
+
+    # Step 2: Search places near coordinates
+    places_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    places_params = {
+        "location": lat_lng,
+        "radius": 2000,
+        "keyword": keyword,
+        "key": GEOCODE_API_KEY
+    }
+
+    places_res = requests.get(places_url, params=places_params)
+    places = places_res.json().get("results", [])
+
+    results = [
+        {
+            "name": p["name"],
+            "address": p.get("vicinity"),
+            "rating": p.get("rating"),
+            "location": p["geometry"]["location"]
+        }
+        for p in places
+    ]
+
+    return jsonify(results)
+
    
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 
