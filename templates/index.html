@@ -25,6 +25,15 @@
     <div id="highlight-results" style="margin-top: 20px;"></div>
     </section>
 
+    <section>
+    <h2>🗣️ Text-to-Speech</h2>
+    <textarea id="tts-input" rows="5" cols="80" placeholder="Type something to speak..."></textarea><br>
+    <button onclick="convertToSpeech()">Speak</button>
+    <br><br>
+    <audio id="tts-audio" controls style="margin-top: 10px;"></audio>
+    </section>
+
+
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
         e.preventDefault(); //stops form from doing defult action of reloadig the page
@@ -90,6 +99,35 @@
         container.innerHTML = "<p style='color:red;'>Something went wrong while fetching highlights.</p>";
     });
 }
+
+    function convertToSpeech() {
+    const text = document.getElementById("tts-input").value.trim();
+    const audio = document.getElementById("tts-audio");
+
+    if (!text) {
+        alert("Please enter some text to convert to speech.");
+        return;
+    }
+
+    fetch("/text-to-speech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.audio) {
+            audio.src = "data:audio/mp3;base64," + data.audio;
+            audio.play();
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(() => {
+        alert("Something went wrong while processing the speech request.");
+    });
+}
+
 </script>
 </body>
 </html>

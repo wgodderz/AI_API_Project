@@ -4,9 +4,9 @@ import os
 from dotenv import load_dotenv
 import base64
 import time
-
-
+from google.cloud import texttospeech
 load_dotenv()
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 #flask lets you create the app
 #render_template loads html files like index.html
@@ -125,6 +125,41 @@ def get_sports_highlights():
     ]
 
     return jsonify(highlights)
+
+@app.route("/text-to-speech", methods=["POST"])
+def text_to_speech():
+    text = request.get_json().get("text", "")
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    try:
+        audio_base64 = generate_audio(text)
+        return jsonify({"audio": audio_base64})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def generate_audio(text: str) -> str:
+    client = texttospeech.TextToSpeechClient()
+
+    input_text = texttospeech.SynthesisInput(text=text)
+
+    voice = texttospeech.VoiceSelectionParams(
+        language_code="en-US",
+        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+    )
+
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    response = client.synthesize_speech(
+        input=input_text,
+        voice=voice,
+        audio_config=audio_config
+    )
+
+    return base64.b64encode(response.audio_content).decode("utf-8")
+
    
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 
