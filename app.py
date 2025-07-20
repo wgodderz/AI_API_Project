@@ -204,6 +204,31 @@ def get_places_by_city():
 
     return jsonify(results)
 
+@app.route("/get_workout", methods=["POST"])
+def get_workout():
+    data = request.get_json()
+    muscle = data.get("muscle", "").lower()
+    
+    if not muscle:
+        return jsonify({"error": "Please specify a muscle group."}), 400
+
+    api_key = os.getenv("WORKOUT_API_KEY")
+    url = f"https://api.api-ninjas.com/v1/exercises?muscle={muscle}"
+
+    try:
+        res = requests.get(url, headers={"X-Api-Key": api_key})
+        res.raise_for_status()
+        workouts = res.json()
+        if not workouts:
+            return jsonify({"error": "No exercises found for that muscle group."})
+        
+        # Limit to 5 workouts for display
+        top_workouts = workouts[:5]
+        return jsonify(top_workouts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
    
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 
