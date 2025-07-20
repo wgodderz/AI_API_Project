@@ -94,5 +94,37 @@ def get_song():
         print("Error:", e)
         return jsonify({"error": "No results found."})
 
+@app.route("/get_sports_highlights", methods=["POST"])
+def get_sports_highlights():
+    data = request.get_json()
+    query = data.get("query", "")
+
+    YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")  # Make sure this is in your .env
+
+    url = "https://www.googleapis.com/youtube/v3/search"
+    params = {
+        "part": "snippet",
+        "q": query + " highlights",
+        "type": "video",
+        "maxResults": 5,
+        "key": YOUTUBE_API_KEY
+    }
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch highlights"}), 500
+
+    items = response.json().get("items", [])
+    highlights = [
+        {
+            "title": item["snippet"]["title"],
+            "thumbnail": item["snippet"]["thumbnails"]["medium"]["url"],
+            "videoUrl": f"https://www.youtube.com/watch?v={item['id']['videoId']}"
+        }
+        for item in items
+    ]
+
+    return jsonify(highlights)
+   
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 

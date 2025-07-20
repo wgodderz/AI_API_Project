@@ -17,6 +17,14 @@
         <button type="submit">Find Song</button>
     </form>
     <div id="playlist-result"></div>
+
+    <section>
+    <h2>🏀 Sports Highlight Recommendations</h2>
+    <input id="highlight-query" placeholder="Enter player, team, or sport..." style="width: 300px; padding: 8px;">
+    <button onclick="fetchHighlights()" style="padding: 8px 12px;">Get Highlights</button>
+    <div id="highlight-results" style="margin-top: 20px;"></div>
+    </section>
+
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
         e.preventDefault(); //stops form from doing defult action of reloadig the page
@@ -49,6 +57,39 @@
             container.textContent = data.error; //show error if no song found
         }
     });
+
+    function fetchHighlights() {
+    const query = document.getElementById("highlight-query").value.trim();
+    const container = document.getElementById("highlight-results");
+    container.innerHTML = "<p>Loading...</p>";
+
+    fetch("/get_sports_highlights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query })
+    })
+    .then(res => res.json())
+    .then(data => {
+        container.innerHTML = "";
+        if (data.error) {
+            container.innerHTML = `<p style="color:red;">${data.error}</p>`;
+            return;
+        }
+        data.forEach(vid => {
+            container.innerHTML += `
+                <div style="margin-bottom: 20px;">
+                    <a href="${vid.videoUrl}" target="_blank" style="text-decoration: none; color: black;">
+                        <img src="${vid.thumbnail}" width="320" style="border-radius: 8px;"><br>
+                        <strong>${vid.title}</strong>
+                    </a>
+                </div>
+            `;
+        });
+    })
+    .catch(() => {
+        container.innerHTML = "<p style='color:red;'>Something went wrong while fetching highlights.</p>";
+    });
+}
 </script>
 </body>
 </html>
