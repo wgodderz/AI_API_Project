@@ -60,6 +60,13 @@
     <div id="calorie-result"></div>
     </section>
 
+    <section>
+    <h2>🏆 Top 10 API</h2>
+    <input type="text" id="top10-input" placeholder="e.g. basketball players" />
+    <button onclick="getTop10()">Get Top 10</button>
+    <pre id="top10-output" style="white-space: pre-wrap; margin-top: 10px;"></pre>
+    </section>
+
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
         e.preventDefault(); //stops form from doing defult action of reloadig the page
@@ -248,6 +255,35 @@ document.getElementById("calorie-form").addEventListener("submit", async (e) => 
       resultDiv.innerHTML = `<p>❌ Something went wrong. Try again later.</p>`;
     }
   });
+
+  function getTop10() {
+    const category = document.getElementById("top10-input").value.trim();
+    const output = document.getElementById("top10-output");
+
+    if (!category) {
+        output.innerText = "Please enter a category.";
+        return;
+    }
+
+    output.innerText = "Loading...";
+
+    fetch("/top10", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            output.innerText = `❌ ${data.error}`;
+        } else {
+            output.innerText = `Top 10 ${category}:\n\n${data.top10}`;
+        }
+    })
+    .catch(() => {
+        output.innerText = "Something went wrong. Try again later.";
+    });
+}
 
 </script>
 </body>

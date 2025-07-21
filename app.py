@@ -262,6 +262,41 @@ def get_calories():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/top10", methods=["POST"])
+def top10():
+    data = request.get_json()
+    category = data.get("category", "").strip()
+
+    if not category:
+        return jsonify({"error": "Please provide a category."}), 400
+
+    try:
+        OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+        prompt = f"List the top 10 {category} of all time. Just give short names or labels for each item."
+
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "gpt-3.5-turbo",  # ← use 3.5 instead of gpt-4
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7
+        }
+
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        response.raise_for_status()
+        result = response.json()
+        top10_list = result["choices"][0]["message"]["content"]
+
+        return jsonify({"top10": top10_list.strip()})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 
