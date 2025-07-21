@@ -297,6 +297,44 @@ def top10():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/top_stocks", methods=["GET"])
+def get_top_stocks():
+    api_key = os.getenv("FINNHUB_API_KEY")
+    url = "https://finnhub.io/api/v1/stock/symbol"
+    params = {"exchange": "US", "token": api_key}
+
+    try:
+        symbols_res = requests.get(url, params=params)
+        symbols = symbols_res.json()[:50]  # Limit for performane
+
+        movers = []
+
+        for stock in symbols:
+            symbol = stock["symbol"]
+            quote_url = "https://finnhub.io/api/v1/quote"
+            quote_params = {"symbol": symbol, "token": api_key}
+            quote_res = requests.get(quote_url, params=quote_params)
+
+            if quote_res.status_code != 200:
+                continue
+
+            quote_data = quote_res.json()
+            if quote_data["pc"] == 0:
+                continue
+
+            change_percent = ((quote_data["c"] - quote_data["pc"]) / quote_data["pc"]) * 100
+            movers.append({
+                "symbol": symbol,
+                "change_percent": round(change_percent, 2)
+            })
+        movers.sort(key=lambda x: x["change_percent"], reverse=True)
+        top_gainers = movers[:5]
+        top_losers = movers[-5:][::-1]
+
+        return jsonify({"gainers": top_gainers, "losers": top_losers})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 

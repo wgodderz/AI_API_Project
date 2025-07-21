@@ -67,6 +67,17 @@
     <pre id="top10-output" style="white-space: pre-wrap; margin-top: 10px;"></pre>
     </section>
 
+    <section>
+    <h2>📈 Top Stock Movers Today</h2>
+    <button onclick="loadStocks()">Show Gainers & Losers</button>
+    <div id="stocks-section">
+        <h3>Top Gainers</h3>
+        <ul id="gainers-list"></ul>
+        <h3>Top Losers</h3>
+        <ul id="losers-list"></ul>
+    </div>
+    </section>
+
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
         e.preventDefault(); //stops form from doing defult action of reloadig the page
@@ -284,6 +295,28 @@ document.getElementById("calorie-form").addEventListener("submit", async (e) => 
         output.innerText = "Something went wrong. Try again later.";
     });
 }
+
+function loadStocks() {
+  document.getElementById("gainers-list").innerHTML = "Loading...";
+  document.getElementById("losers-list").innerHTML = "";
+
+  fetch("/top_stocks")
+    .then(res => res.json())
+    .then(data => {
+      const gainers = data.gainers || [];
+      const losers = data.losers || [];
+
+      const gainersList = gainers.map(s => `<li>${s.symbol} (${s.change_percent}%)</li>`).join("");
+      const losersList = losers.map(s => `<li>${s.symbol} (${s.change_percent}%)</li>`).join("");
+
+      document.getElementById("gainers-list").innerHTML = gainersList;
+      document.getElementById("losers-list").innerHTML = losersList;
+    })
+    .catch(err => {
+      document.getElementById("gainers-list").innerHTML = `<li>Error: ${err.message}</li>`;
+    });
+}
+
 
 </script>
 </body>
