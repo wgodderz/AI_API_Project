@@ -335,6 +335,31 @@ def get_top_stocks():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/translate", methods=["POST"])
+def translate_text():
+    data = request.get_json()
+    text = data.get("text", "")
+    target = data.get("target", "en")
+
+    GOOGLE_API_KEY = os.getenv("GOOGLE_TRANSLATE_API_KEY")
+    url = "https://translation.googleapis.com/language/translate/v2"
+
+    params = {
+        "q": text,
+        "target": target,
+        "format": "text",
+        "key": GOOGLE_API_KEY
+    }
+
+    try:
+        response = requests.post(url, params=params)
+        response.raise_for_status()
+        translated = response.json()["data"]["translations"][0]["translatedText"]
+        return jsonify({"translated_text": translated})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__": #calls main
     app.run(debug=True, host="0.0.0.0") #starts the flask server 

@@ -78,6 +78,16 @@
     </div>
     </section>
 
+    <select id="languageSelect">
+    <option value="en">English</option>
+    <option value="es">Spanish</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+    <option value="ja">Japanese</option>
+    </select>
+    <button onclick="translatePage()">Translate</button>
+
+
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
         e.preventDefault(); //stops form from doing defult action of reloadig the page
@@ -317,6 +327,38 @@ function loadStocks() {
     });
 }
 
+function translatePage() {
+  const targetLang = document.getElementById("languageSelect").value;
+
+  // Walk the DOM and collect all visible text nodes
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.nodeValue.trim() && node.parentNode.offsetParent !== null) {
+      textNodes.push(node);
+    }
+  }
+
+  textNodes.forEach(async (node) => {
+    const originalText = node.nodeValue.trim();
+
+    try {
+      const res = await fetch("/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: originalText, target: targetLang })
+      });
+
+      const data = await res.json();
+      if (data.translated_text) {
+        node.nodeValue = data.translated_text;
+      }
+    } catch (err) {
+      console.error("Translation error:", err);
+    }
+  });
+}
 
 </script>
 </body>
