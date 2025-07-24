@@ -1,150 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Study Buddy Times</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Merriweather', serif;
-      background-color: #f9f9f9;
-      padding: 20px;
+      font-family: 'EB Garamond', Georgia, serif;
+      background: url('https://www.transparenttextures.com/patterns/white-wall-3.png');
+      color: #1a1a1a;
+      margin: 0;
+      padding: 0;
     }
-    h1 {
+
+    header {
+      background-color: #f5f5f5;
+      padding: 30px 0 10px;
+      border-bottom: 2px solid #ccc;
       text-align: center;
-      font-size: 2.8rem;
-      margin-bottom: 30px;
     }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px 32px;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px 40px;
+
+    header h1 {
+      font-size: 3.2em;
+      margin: 0;
+      letter-spacing: 1.5px;
     }
-    .article-section {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 16px 20px;
-      font-size: 0.95rem;
+
+    .date-line {
+      font-size: 1em;
+      color: #666;
+      margin-top: 8px;
+      font-style: italic;
     }
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-      font-weight: 700;
-      border-bottom: 1px solid #aaa;
-      padding-bottom: 4px;
+
+    .translate-bar {
+      margin-top: 10px;
+      text-align: center;
     }
-    input, textarea, button, select {
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 6px;
-      margin: 4px 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      background: #111;
-      color: white;
-      border: none;
+
+    .translate-bar select,
+    .translate-bar button {
+      font-size: 0.9em;
+      padding: 6px 10px;
+      margin: 5px;
       cursor: pointer;
     }
-    button:hover {
-      background: #333;
+
+    .newspaper {
+      max-width: 1300px;
+      margin: 30px auto;
+      display: flex;
+      gap: 36px;
+      padding: 0 40px;
     }
-    audio {
+
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .section-label {
+      font-size: 0.85em;
+      color: #555;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: -15px;
       margin-top: 10px;
+      border-bottom: 1px dotted #bbb;
     }
-    .span-2 {
-      grid-column: span 2;
+
+    section.article-section {
+      break-inside: avoid;
+      background: #fff;
+      padding: 5px 10px 20px;
+      transition: 0.3s;
+      border: 1px solid #ccc;
     }
-    .span-3 {
-      grid-column: span 3;
+
+    section.article-section:nth-child(even) {
+      background: #fefefe;
+      border: 1px double #aaa;
+    }
+
+    section.article-section:hover {
+      background-color: #f9f9f9;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    section.article-section p:first-letter {
+      float: left;
+      font-size: 2.4em;
+      line-height: 1;
+      padding-right: 8px;
+      font-weight: bold;
+    }
+
+    h2 {
+      font-size: 1.3em;
+      border-bottom: 1px solid #999;
+      margin-bottom: 5px;
+      padding-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .byline {
+      font-size: 0.75em;
+      color: #666;
+      margin-bottom: 10px;
+      display: block;
+      font-style: italic;
+    }
+
+    p, li {
+      text-align: justify;
+      line-height: 1.6;
+      font-size: 1em;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+      border-top: 1px solid #ccc;
+      margin-top: 60px;
+      padding: 20px 0;
+    }
+
+    .article-section img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+      border: 1px solid #999;
+    }
+
+    @media (max-width: 900px) {
+      .newspaper {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📰 Willis Times</h1>
-  <div class="grid-container">
-    <section class="article-section span-2">
-      <h2>📝 Summarize Your Notes</h2>
-      <form id="text-form">
-        <textarea name="text" rows="8" placeholder="Paste your notes here..."></textarea>
-        <button type="submit">Summarize</button>
-      </form>
-      <div id="output"></div>
-    </section>
-
-    <section class="article-section">
-      <h2>🎧 Vibe-Based Song Finder</h2>
-      <form id="vibe-form" method="post">
-        <input type="text" name="vibe" placeholder="Enter a vibe (e.g. gym, chill, drake)">
-        <button type="submit">Find Song</button>
-      </form>
-      <div id="playlist-result"></div>
-    </section>
-
-    <section class="article-section">
-      <h2>🏀 Sports Highlight Recommendations</h2>
-      <input id="highlight-query" placeholder="Enter player, team, or sport...">
-      <button onclick="fetchHighlights()">Get Highlights</button>
-      <div id="highlight-results"></div>
-    </section>
-
-    <section class="article-section">
-      <h2>🗣️ Text-to-Speech</h2>
-      <textarea id="tts-input" rows="5" placeholder="Type something to speak..."></textarea>
-      <button onclick="convertToSpeech()">Speak</button>
-      <audio id="tts-audio" controls></audio>
-    </section>
-
-    <section class="article-section">
-      <h2>📍 Explore Places in Any City</h2>
-      <input type="text" id="cityInput" placeholder="Enter city (e.g., Chicago)">
-      <input type="text" id="cityKeywordInput" placeholder="Enter keyword (e.g., pizza)">
-      <button onclick="getPlacesByCity()">Find Places</button>
-      <ul id="cityResultsList"></ul>
-    </section>
-
-    <section class="article-section">
-      <h2>💪 Custom Workout Generator</h2>
-      <input type="text" id="muscleInput" placeholder="Enter muscle group (e.g. chest)">
-      <button onclick="getWorkout()">Get Workout Plan</button>
-      <ul id="workoutResultsList"></ul>
-    </section>
-
-    <section class="article-section">
-      <h2>🍎 Calorie & Nutrition Info</h2>
-      <form id="calorie-form">
-        <input type="text" id="food-input" placeholder="e.g. chicken breast" required>
-        <button type="submit">Get Nutrition Info</button>
-      </form>
-      <div id="calorie-result"></div>
-    </section>
-
-    <section class="article-section">
-      <h2>🏆 Top 10 Rankings</h2>
-      <input type="text" id="top10-input" placeholder="e.g. basketball players">
-      <button onclick="getTop10()">Get Top 10</button>
-      <pre id="top10-output"></pre>
-    </section>
-
-    <section class="article-section span-2">
-      <h2>📈 Top Stock Movers Today</h2>
-      <button onclick="loadStocks()">Show Gainers & Losers</button>
-      <div id="stocks-section">
-        <h3>Top Gainers</h3>
-        <ul id="gainers-list"></ul>
-        <h3>Top Losers</h3>
-        <ul id="losers-list"></ul>
-      </div>
-    </section>
-
-    <section class="article-section">
-      <h2>🌐 Translate This Page</h2>
+  <header>
+    <h1>📰 AI Willis Times</h1>
+    <div class="date-line">Thursday, July 25, 2025</div>
+    <div class="translate-bar">
       <select id="languageSelect">
         <option value="en">English</option>
         <option value="es">Spanish</option>
@@ -152,9 +156,87 @@
         <option value="de">German</option>
         <option value="ja">Japanese</option>
       </select>
-      <button onclick="translatePage()">Translate</button>
-    </section>
-  </div>
+      <button onclick="translatePage()">🌐 Translate</button>
+    </div>
+  </header>
+
+  <div class="newspaper">
+    <div class="column">
+      <h3 class="section-label">Productivity</h3>
+      <section class="article-section">
+        <h2>📝 Summarize Your Notes</h2>
+        <img src="https://th.bing.com/th?q=Student+Writing+Essay+Cartoon&w=120&h=120&c=1&rs=1&qlt=90&r=0&cb=1&pid=InlineBlock&mkt=en-US&cc=US&setlang=en&adlt=strict&t=1&mw=247" alt="Writing cartoon">
+        <form id="text-form">
+          <textarea name="text" rows="8" placeholder="Paste your notes here..."></textarea>
+          <button type="submit">Summarize</button>
+        </form>
+        <div id="output"></div>
+      </section>
+      <section class="article-section">
+        <h2>💪 Custom Workout Generator</h2>
+        <img src="https://th.bing.com/th/id/OIP.d1UFuHwAf0sDgp_oqYeyQwHaE8?w=227&h=180&c=7&r=0&o=7&pid=1.7&rm=3" alt="Workout Plan">
+        <input type="text" id="muscleInput" placeholder="Enter muscle group (e.g. chest)">
+        <button onclick="getWorkout()">Get Workout Plan</button>
+        <ul id="workoutResultsList"></ul>
+      </section>
+    </div>
+
+    <div class="column">
+      <h3 class="section-label">Entertainment</h3>
+      <section class="article-section">
+        <h2>🎧 Vibe-Based Song Finder</h2>
+        <img src="https://retailwire.com/wp-content/uploads/Spotify-Photo-by-Bastian-Riccardi-on-Unsplash-scaled.jpg" alt="Spotify vibe image">
+        <form id="vibe-form" method="post">
+          <input type="text" name="vibe" placeholder="Enter a vibe (e.g. gym, chill, drake)">
+          <button type="submit">Find Song</button>
+        </form>
+        <div id="playlist-result"></div>
+      </section>
+
+      <section class="article-section">
+        <h2>🏀 Sports Highlight Recommendations</h2>
+        <img src="https://th.bing.com/th/id/R.47a2d030a52e6caf41d1c3f2990f9f30?rik=gnFXoFK%2frqcZeg&pid=ImgRaw&r=0" alt="LeBron Highlights">
+        <input id="highlight-query" placeholder="Enter player, team, or sport...">
+        <button onclick="fetchHighlights()">Get Highlights</button>
+        <div id="highlight-results"></div>
+      </section>
+    </div>
+
+    <div class="column">
+      <h3 class="section-label">Health & Rankings</h3>
+      <section class="article-section">
+        <h2>🍎 Calorie & Nutrition Info</h2>
+        <form id="calorie-form">
+          <input type="text" id="food-input" placeholder="e.g. chicken breast" required>
+          <button type="submit">Get Nutrition Info</button>
+        </form>
+        <div id="calorie-result"></div>
+      </section>
+
+      <section class="article-section">
+        <h2>🏆 Top 10 Rankings</h2>
+        <img src="https://th.bing.com/th/id/OIP.V7wpOwxUd4vlBxkxlhEr0QAAAA?w=143&h=187&c=7&r=0&o=7&pid=1.7&rm=3" alt="Top 10 Trophy">
+        <input type="text" id="top10-input" placeholder="e.g. basketball players">
+        <button onclick="getTop10()">Get Top 10</button>
+        <pre id="top10-output"></pre>
+      </section>
+
+      <section class="article-section">
+        <h2>📈 Stock Market Movers</h2>
+        <img src="https://th.bing.com/th?id=OIF.FVf%2b2vEYitNogNCiWoCMDg&r=0" alt="Stock Market">
+        <button onclick="getStockMovers()">Get Top Gainers & Losers</button>
+        <div id="stock-movers-output">
+          <h4>Top Gainers:</h4>
+          <ul id="gainers-list"></ul>
+          <h4>Top Losers:</h4>
+          <ul id="losers-list"></ul>
+        </div>
+      </section>
+</div> 
+</div> 
+  <footer>
+    &copy; 2025 WILLIS Times. All rights reserved.
+  </footer>
 
     <script> //start ther JavaScript code
     document.getElementById("text-form").addEventListener("submit", async function(e) { // listens for the form submission
@@ -374,7 +456,7 @@ document.getElementById("calorie-form").addEventListener("submit", async (e) => 
     });
 }
 
-function loadStocks() {
+function getStockMovers() {
   document.getElementById("gainers-list").innerHTML = "Loading...";
   document.getElementById("losers-list").innerHTML = "";
 
