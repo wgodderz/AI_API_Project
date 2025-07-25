@@ -179,6 +179,12 @@
         <button onclick="getWorkout()">Get Workout Plan</button>
         <ul id="workoutResultsList"></ul>
       </section>
+      <section class="article-section">
+        <h2>🔊 Convert Text to Speech</h2>
+        <textarea id="tts-input" rows="4" placeholder="Enter text to speak..."></textarea>
+        <button onclick="convertToSpeech()">Speak It</button>
+        <audio id="tts-audio" controls style="display:block; margin-top:10px;"></audio>
+      </section>
     </div>
 
     <div class="column">
@@ -199,6 +205,13 @@
         <input id="highlight-query" placeholder="Enter player, team, or sport...">
         <button onclick="fetchHighlights()">Get Highlights</button>
         <div id="highlight-results"></div>
+      </section>
+      <section class="article-section">
+        <h2>📍 Find Local Spots</h2>
+        <input type="text" id="cityInput" placeholder="Enter city (e.g. New York)">
+        <input type="text" id="cityKeywordInput" placeholder="Search for... (e.g. coffee)">
+        <button onclick="getPlacesByCity()">Find Places</button>
+        <ul id="cityResultsList"></ul>
       </section>
     </div>
 

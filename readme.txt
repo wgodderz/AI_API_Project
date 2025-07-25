@@ -29,7 +29,7 @@ Lib and Scripts: part of the Python virtual environment
 - on phone put: http://192.168.4.253:5000
 
 run in the cmd
-- cd "C:\Users\wgodd\OneDrive\Documents\ai-study-buddy"
+- cd "C:\Users\wgodd\OneDrive\Documents\Willis Times"
 - venv\Scripts\activate
 - py app.py
 
