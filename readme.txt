@@ -33,3 +33,4 @@ run in the cmd
 - venv\Scripts\activate
 - py app.py
 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
